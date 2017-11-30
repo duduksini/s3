@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Duduksini's main S3 bucket
+Parameters:
+  S3BucketName:
+    Type: String
+    Default: duduksini
+  S3SubPathForOriginAccessIdentity:
+    Type: String
+    Default: boardgame-img
+  PrecreatedOriginAccessIdentityCanonicalUserId:
+    Type: String
+    Default: 552bf95121ef135689a08e7830b4b4e9d50b1b670d33231294facc019e62a6c1247bc536c77721b1b29b1e74d2f3659a
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref S3BucketName
+  S3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties: 
+      Bucket: !Ref S3Bucket
+      PolicyDocument:
+        Statement: 
+          - Action:
+              - s3:GetObject
+            Effect: Allow
+            Resource: 
+              - !Sub arn:aws:s3:::${S3BucketName}/${S3SubPathForOriginAccessIdentity}
+            Principal:
+              CanonicalUser: !Ref PrecreatedOriginAccessIdentityCanonicalUserId
+          - Action: 
+              - s3:*
+            Effect: Allow
+            Resource: 
+              - !Sub arn:aws:s3:::${S3BucketName}/*
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
